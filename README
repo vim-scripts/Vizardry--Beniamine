@@ -1,6 +1,6 @@
 This is a mirror of http://www.vim.org/scripts/script.php?script_id=5235
 
-# Vizardry
+#Vizardry
 
 Remember back in the dark ages of 2013? When you had to search for vim plugins like a wild animal, using your browser?
 
@@ -9,7 +9,7 @@ In 2014, you can just type ":Invoke <keyword>" and Vizardry will automatically s
 In 2015 you can even upgrade plugins from any git repo or vim.org using [:Evolve](#evolve).
 
 
-## Why this fork ?
+## <a name="Fork">Why this fork ?</a>
 
 This fork add several nice features to the [original Vizardry plugin from ardagnir](https://github.com/ardagnir/Vizardry):
 
@@ -24,8 +24,7 @@ see [submodules](#submodules)).
 + Automatically call `:Helptags` every time a plugin is Invoked.
 
 **Note:** Since v1.1, `VizardrySortScryResults` is replaced by VizardrySearchOptions
-
-### How to use Vizardry with submodules ?
+### <a name="submodules">How to use Vizardry with submodules ?</a>
 
 Set the following variables in your vimrc:
 
@@ -99,10 +98,10 @@ or `:Vanish` if it contains some bad modifications.
     `<query>` (see above)  and ask for install, the sort criteria for
     search results can be configured (see above).
 
-Suppose you're in the middle of vimming and you have a sudden need to surround
-random words in "scare quotes". You can't remember who made the surround
-plugin, or whether it's called surround.vim, vim-surround or
-vim-surround-plugin. Most importantly, you're lazy.
+    Suppose you're in the middle of vimming and you have a sudden need to surround
+    random words in "scare quotes". You can't remember who made the surround
+    plugin, or whether it's called surround.vim, vim-surround or
+    vim-surround-plugin. Most importantly, you're lazy.
 
 
     Just type:
@@ -188,22 +187,6 @@ vim-surround-plugin. Most importantly, you're lazy.
         You can also search a plugin by vim.org id:
 
             :Invoke -u vim-scripts in:readme script_id=<id>
-
-## Requirements
-- Vizardry requires [pathogen](https://github.com/tpope/vim-pathogen). But you already have pathogen installed, don't you?
-
-- It also needs curl, as well as commandline programs that come with most \*nix systems.
-
-+ [atool](http://freecode.com/projects/atool) is required for upgrading scripts from vim.org.
-
-- You will probably have issues if you use a Windows OS.
-
-## Installation
-
-Use pathogen.
-
-    cd ~/.vim/bundle
-    git clone https://github.com/dbeniamine/vizardry
 
 ##License
 
