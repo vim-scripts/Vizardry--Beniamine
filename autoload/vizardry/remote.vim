@@ -40,6 +40,10 @@ if !exists("g:VizardrySearchOptions")
   let g:VizardrySearchOptions='fork:true'
 endif
 
+if !exists("g:VizardryViewReadmeOnEvolve")
+  let g:VizardryViewReadmeOnEvolve=0
+endif
+
 let g:vizardry#remote#EvolveVimOrgPath = g:vizardry#scriptDir.'/plugin/EvolveVimOrgPlugins.sh'
 " Functions {{{1
 
@@ -75,6 +79,24 @@ function! vizardry#remote#testRepo(repository)
   return ""
 endfunction
 
+" Display Readme {{{2
+function! vizardry#remote#DisplayReadme(site)
+  call vizardry#echo("Looking for README url",'s')
+  let readmeurl=system('curl -silent https://api.github.com/repos/'.
+        \ a:site.'/readme | grep download_url')
+  let readmeurl=substitute(readmeurl,
+        \ '\s*"download_url"[^"]*"\(.*\)",.*','\1','')
+  call vizardry#echo("Retrieving README",'s')
+  if readmeurl == ""
+    call vizardry#echo("No readme found",'e')
+  else
+    execute ':!curl -silent '.readmeurl.' | sed "1,/^$/ d" | '.
+          \ g:VizardryReadmeReader
+  endif
+endfunction
+
+
+
 " Invoke helper {{{2
 function! vizardry#remote#handleInvokation(site, description, inputNice, index)
   let valid = 0
@@ -88,11 +110,11 @@ function! vizardry#remote#handleInvokation(site, description, inputNice, index)
     let response = vizardry#doPrompt("Clone as \"".inputNice.
           \ "\"? (Yes/Rename/DisplayMore/Next/Previous/Abort)",
           \ ['y','r','d','n','p','a'])
-    if response == 'y'
+    if response ==? 'y'
       call vizardry#remote#grabRepo(a:site, inputNice)
       call vizardry#ReloadScripts()
       let valid=1
-    elseif response == 'r'
+    elseif response ==? 'r'
       let newName = ""
       let inputting = 1
       while inputting
@@ -118,33 +140,19 @@ function! vizardry#remote#handleInvokation(site, description, inputNice, index)
         call vizardry#ReloadScripts()
         let valid = 1
       endif
-    elseif response == 'n'
+    elseif response ==? 'n'
       let ret=a:index+1
       let valid = 1
-    elseif response == 'd'
-      call vizardry#echo("Looking for README url",'s')
-      let readmeurl=system('curl -silent https://api.github.com/repos/'.
-            \ a:site.'/readme | grep download_url')
-      let readmeurl=substitute(readmeurl,
-            \ '\s*"download_url"[^"]*"\(.*\)",.*','\1','')
-      call vizardry#echo("Retrieving README",'s')
-      if readmeurl == ""
-        echohl WarningMsg
-        call vizardry#echo("No readme found",'e')
-        echohl None
-      else
-        execute ':!curl -silent '.readmeurl.' | sed "1,/^$/ d" | '.
-              \ g:VizardryReadmeReader
-      endif
-    elseif response == 'a'
+    elseif response ==? 'd'
+      call vizardry#remote#DisplayReadme(a:site)
+    elseif response ==? 'a'
       let valid=1
-    elseif response == 'p'
+    elseif response ==? 'p'
       let ret=a:index-1
       let valid=1
     endif
   endwhile
   redraw
-  echo ret
   return ret
 endfunction
 
@@ -195,8 +203,8 @@ function! vizardry#remote#Invoke(input)
     return
   endif
 
+  if a:input =~ "[0-9][0-9]*"
   let inputNumber = str2nr(a:input)
-  if inputNumber!=0
     " Input is a number search from previous search results
     if exists("g:vizardry#siteList") && inputNumber < len(g:vizardry#siteList)
           \|| a:input=="0"
@@ -264,6 +272,17 @@ function s:GitEvolve(path)
   if l:ret=~'Already up-to-date'
     return ''
   endif
+  if g:VizardryViewReadmeOnEvolve == 1
+    let response=vizardry#doPrompt(a:path.' Evolved, show Readme ? (Yes,No)',
+          \['y','n'])
+    if response =='y'
+      let l:site=system('cd '.a:path.' && git remote -v')
+      let l:site=substitute(site,'origin\s*\(\S*\).*','\1','')
+      let l:site=substitute(site,'.*github\.com.\(.*\)','\1','')
+      let l:site=substitute(site,'\(.*\).git','\1','')
+      call vizardry#remote#DisplayReadme(site)
+    endif
+  endif
   return a:path
 endfunction
 
@@ -330,16 +349,24 @@ function! vizardry#remote#Scry(input)
   else
     call vizardry#remote#InitLists(a:input)
     let index=0
+    let choices=[]
     let length=len(g:vizardry#siteList)
     redraw
     while index<length
       call vizardry#echo(index.": ".g:vizardry#siteList[index],'')
       call vizardry#echo('('.g:vizardry#descriptionList[index].')','')
+      call add(choices,string(index))
       let index=index+1
       if index<length
         echo "\n"
       endif
     endwhile
+    call add(choices,'q')
+    let ans=vizardry#doPrompt("Invoke script number [0:".length.
+          \"] or quit Scry (q) ?",choices)
+    if ans!='q'
+      call vizardry#remote#Invoke(ans)
+    endif
   endif
 endfunction
 

@@ -8,6 +8,13 @@ In 2014, you can just type ":Invoke <keyword>" and Vizardry will automatically s
 
 In 2015 you can even upgrade plugins from any git repo or vim.org using [:Evolve](#evolve).
 
+## Release notes
+
+* v1.3 allow to Invoke directly from Scry, to do so, I had to modify the input
+  method (using `:input()`, instead of `:getchar()`), for the user the result
+  is that it is now necessary to hit 'enter' after answering a prompt from
+  Vizardry
+* Since v1.1, `VizardrySortScryResults` is replaced by VizardrySearchOptions
 
 ## <a name="Fork">Why this fork ?</a>
 
@@ -20,10 +27,10 @@ see [submodules](#submodules)).
 + Retrieve the README.md file while using `:Invoke`.
 + Navigate through search results with `:Invoke`
 + Set the length of `Scry` results list.
++ Go directly from `Scry`  to `Invoke`
 + Search script written by specific user with `:Scry` and `:Invoke`
 + Automatically call `:Helptags` every time a plugin is Invoked.
 
-**Note:** Since v1.1, `VizardrySortScryResults` is replaced by VizardrySearchOptions
 ### <a name="submodules">How to use Vizardry with submodules ?</a>
 
 Set the following variables in your vimrc:
@@ -61,6 +68,8 @@ or `:Vanish` if it contains some bad modifications.
     + If no <query> is given, list all invoked and banished plugins.
     + If a <query> is specified (see below), search github for a
     script matching <query> in title or readme and list N first results.
+    After the search, ̀`Scry` will prompt you to `Invoke` a script, hit `q` to
+    exit, or a number to `Invoke` the corresponding script.
 
     The number of results displayed can be configured by adding the following
     to your vimrc:
@@ -78,9 +87,9 @@ or `:Vanish` if it contains some bad modifications.
     + One or several `<keywords>` and `-u <user>` (in any order)
 
     It is possible to set some github search option in your vimrc, default
-    options are show forked repositories and sort by stars. These option can
-    be overwritten. For instance adding the following to your vimrc will make
-    vizardry show results sorted by number of stars hidding forked
+    options are show forked repositories and sort by pertinence. These options
+    can be overwritten. For instance adding the following to your vimrc will
+    make vizardry show results sorted by number of stars hidding forked
     repositries.
 
         let g:VizardrySortOptions="fork:false+sort:stars"
@@ -165,6 +174,14 @@ or `:Vanish` if it contains some bad modifications.
 
         git pull origin master
 
+    Sometimes it can be a good idea to take a quick look at a plugin's README
+    when updating, to do so, add the following to your vimrc:
+
+        let g:VizardryViewReadmeOnEvolve=1
+
+    `:Evolve` will then prompt ask you to display readme each time a plugin is
+    upgraded.
+
     `:Evolve` is also able to upgrade plugin downloaded from vim.org, to do so,
     you need to create a `.metainfos` file at the root of the plugin directory
     (not yout bundle directory). Such a file is composed of two lines:
@@ -187,6 +204,22 @@ or `:Vanish` if it contains some bad modifications.
         You can also search a plugin by vim.org id:
 
             :Invoke -u vim-scripts in:readme script_id=<id>
+
+## Requirements
+- Vizardry requires [pathogen](https://github.com/tpope/vim-pathogen). But you already have pathogen installed, don't you?
+
+- It also needs curl, as well as commandline programs that come with most \*nix systems.
+
++ [atool](http://freecode.com/projects/atool) is required for upgrading scripts from vim.org.
+
+- You will probably have issues if you use a Windows OS.
+
+## Installation
+
+Use pathogen.
+
+    cd ~/.vim/bundle
+    git clone https://github.com/dbeniamine/vizardry
 
 ##License
 
