@@ -11,5 +11,6 @@ Vizardry-Requirements	vizardry.txt	/*Vizardry-Requirements*
 Vizardry-Submodules	vizardry.txt	/*Vizardry-Submodules*
 Vizardry-commands	vizardry.txt	/*Vizardry-commands*
 Vizardry-query	vizardry.txt	/*Vizardry-query*
+Vizardry-releaseNotes	vizardry.txt	/*Vizardry-releaseNotes*
 VizardrySearchOptions	vizardry.txt	/*VizardrySearchOptions*
 VizardrySortScryResults	vizardry.txt	/*VizardrySortScryResults*
