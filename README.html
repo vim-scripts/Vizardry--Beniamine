@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="vizardry">Vizardry</h1>
+<pre><code>            ________________ _______ _______ ______  _______
+    |\     /\__   __/ ___   (  ___  (  ____ (  __  \(  ____ |\     /|
+    | )   ( |  ) (  \/   )  | (   ) | (    )| (  \  | (    )( \   / )
+    | |   | |  | |      /   | (___) | (____)| |   ) | (____)|\ (_) /
+    ( (   ) )  | |     /   /|  ___  |     __| |   | |     __) \   /
+     \ \_/ /   | |    /   / | (   ) | (\ (  | |   ) | (\ (     ) (
+      \   / ___) (___/   (_/| )   ( | ) \ \_| (__/  | ) \ \__  | |
+       \_/  \_______(_______|/     \|/   \__(______/|/   \__/  \_/
+
+                A vim plugin manager for lazy people</code></pre>
+<h2 id="release-notes">Release notes</h2>
+<p>Current Version: 1.3.2</p>
+<ul>
+<li>v1.3 allow to Invoke directly from Scry, to do so, I had to modify the input method (using <code>:input()</code>, instead of <code>:getchar()</code>), for the user the result is that it is now necessary to hit ‘enter’ after answering a prompt from Vizardry</li>
+<li>Since v1.1, <code>VizardrySortScryResults</code> is replaced by <code>VizardrySearchOptions</code></li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<p>Remember back in the dark ages of 2013? When you had to search for vim plugins like a wild animal, using your browser?</p>
+<p>In 2014, you can just type “:Invoke &lt;keyword&gt;” and Vizardry will automatically search github for the plugin you want and install it for you.</p>
+<p>In 2015 you can even upgrade plugins from any git repo or vim.org using <a href="#evolve">:Evolve</a>.</p>
+<h3 id="why-this-fork">Why this fork ?</h3>
+<p>This plugin is a fork from <a href="https://github.com/ardagnir/Vizardry">Ardagnir original Vizardry plugin</a> which adds several pretty cool features including:</p>
+<ul>
+<li><code>Vanish</code> command to actually remove a plugin.</li>
+<li><code>Evolve</code> command to upgrade one or every plugins see <a href="#evolve">Evolve</a>.</li>
+<li>Complete submodule handling for people having their vim config in a git repo (see <a href="#how-to-use-vizardry-with-submodules-?">submodules</a>).</li>
+<li>Dislay README.md file inside vim while using <code>:Invoke</code>.</li>
+<li>Navigate through search results with <code>:Invoke</code></li>
+<li>Set the length of <code>Scry</code> results list.</li>
+<li>Go directly from <code>Scry</code> to <code>Invoke</code></li>
+<li>Search script written by specific user with <code>:Scry</code> and <code>:Invoke</code></li>
+<li>Automatically call <code>:Helptags</code> every time a plugin is Invoked.</li>
+<li>…</li>
+</ul>
+<h3 id="requirements">Requirements</h3>
+<ul>
+<li><p>Vizardry requires <a href="https://github.com/tpope/vim-pathogen">pathogen</a>. But you already have pathogen installed, don’t you?</p></li>
+<li><p>It also needs curl, as well as commandline programs that come with most *nix systems.</p></li>
+<li><p><em>Optional:</em> <a href="http://freecode.com/projects/atool">atool</a> is required for upgrading scripts from vim.org (although it is preferable to use vim.org github repositories).</p></li>
+<li><p>You will probably have issues if you use a Windows OS.</p></li>
+</ul>
+<h3 id="installation">Installation</h3>
+<p>Use pathogen.</p>
+<pre><code>cd ~/.vim/bundle
+git clone https://github.com/dbeniamine/vizardry</code></pre>
+<h3 id="license">License</h3>
+<p>Vizardry is licensed under the AGPL v3</p>
+<p>Author: David Beniamine</p>
+<h2 id="how-to-use-vizardry-with-submodules">How to use Vizardry with submodules ?</h2>
+<p>Set the following variables in your vimrc:</p>
+<pre><code>let g:VizardryGitMethod=&quot;submodule add&quot;
+let g:VizardryGitBaseDir=&quot;/path/to/your/git/repo&quot;</code></pre>
+<p>The second variable <strong>must be</strong> the root of the repo containing your vim files.</p>
+<p>Optionally you can set the vim commit messages (the name of the modified plugin will always be happened in the end of the message, the proposed values are the defaults):</p>
+<pre><code>let g:VizardryCommitMsgs={&#39;Invoke&#39;: &quot;[Vizardry] Invoked vim submodule:&quot;,
+      \&#39;Banish&#39;: &quot;[Vizardry] Banished vim submodule:&quot;,
+      \&#39;Vanish&#39;: &quot;[Vizardry] Vanished vim submodule:&quot;,
+      \&#39;Evolve&#39;: &quot;[Vizardry] Evolved vim submodule:&quot;,
+      \}</code></pre>
+<p>Each time you <code>:Invoke</code>, <code>:Bannish</code> or <code>:Vanish</code> a module, the submodule will be correctly updated and a minimal commit will be created.</p>
+<h3 id="note">Note:</h3>
+<ul>
+<li>Commits created by Vizardry are not automatically pushed.</li>
+<li>The <code>.gitmodule</code> is included in each commit, do not use <code>:Invoke</code>, <code>:Bannish</code> or <code>:Vanish</code> if it contains some bad modifications.</li>
+</ul>
+<h2 id="commands">Commands</h2>
+<h3 id="scry">Scry</h3>
+<p><code>:Scry [&amp;lt;query&amp;gt;]</code></p>
+<ul>
+<li>If no <query> is given, list all invoked and banished plugins.</li>
+<li>If a <query> is specified (see below), search github for a script matching <query> in title or readme and list N first results. After the search, ̀<code>Scry</code> will prompt you to <code>Invoke</code> a script, hit <code>q</code> to exit, or a number to <code>Invoke</code> the corresponding script.</li>
+</ul>
+<h4 id="number-of-results">Number of results</h4>
+<p>The number of results displayed can be configured by adding the following to your vimrc:</p>
+<pre><code>let g:VizardryNbScryResults = 25</code></pre>
+<p>Default is 10.</p>
+<h4 id="queries">Queries</h4>
+<p>A <code>&lt;query&gt;</code> can be:</p>
+<ul>
+<li>One or several <code>&lt;keywords&gt;</code></li>
+<li>A query matching the github <a href="https://developer.github.com/v3/search/#search-repositories">search api</a></li>
+<li><code>-u &lt;user&gt;</code> (search every repositories of <code>&lt;user&gt;</code> matching ‘vim’</li>
+<li>One or several <code>&lt;keywords&gt;</code> and <code>-u &lt;user&gt;</code> (in any order)</li>
+</ul>
+<h4 id="search-options">Search options</h4>
+<p>It is possible to set some github search option in your vimrc, default options are show forked repositories and sort by pertinence. These options can be overwritten. For instance adding the following to your vimrc will make vizardry show results sorted by number of stars hidding forked repositries.</p>
+<pre><code>let g:VizardrySortOptions=&quot;fork:false+sort:stars&quot;</code></pre>
+<p>Any combination of github option can be used, a <code>+</code> must appear between each options. For the sort option, available parameters are <code>stars</code>, <code>forks</code>, <code>updated</code>, by default, it show the best match.</p>
+<h3 id="invoke">Invoke</h3>
+<p><code>:Invoke [&amp;lt;query&amp;gt;|N]</code></p>
+<ul>
+<li>If no arguments is specified, reload your plugins.</li>
+<li>If the argument is a number, ask to install the plugin with that number from the last <code>:Scry</code> or Invoke.</li>
+<li>If the argument is a <code>&lt;query&gt;</code>, search github for a plugin matching <code>&lt;query&gt;</code> (see above) and ask for install, the sort criteria for search results can be configured (see above).</li>
+</ul>
+<p>Suppose you’re in the middle of vimming and you have a sudden need to surround random words in “scare quotes”. You can’t remember who made the surround plugin, or whether it’s called surround.vim, vim-surround or vim-surround-plugin. Most importantly, you’re lazy.</p>
+<p>Just type:</p>
+<pre><code>:Invoke surround</code></pre>
+<p>Vizardry will pop up a prompt saying:</p>
+<pre><code>Result 1/20: tpope/vim-surround
+(surround.vim: quoting/parenthesizing made simple)
+
+Clone as &quot;surround&quot;? (Yes/Rename/DisplayMore/Next/Previous/Abort)</code></pre>
+<p>Press Y and you can immediately start surrounding things. You can also take a look at the README.md directly in vim by hitting ‘d’, Go to the next or previous script with ‘n’ and ‘p’ or abort ‘a’. It’s that easy.</p>
+<h3 id="display-readme-on-invoke">Display readme on Invoke</h3>
+<p>To view the readme, an other instance of vim is called, the command line can be configured:</p>
+<pre><code>let g:VizardryReadmeReader=&#39;view -c &quot;set ft=markdown&quot; -&#39;</code></pre>
+<p>Even plugins with vague or silly names can be found with Vizardry. Imagine you’re running multiple instances of vim and need a package to sync registers.</p>
+<p>Type:</p>
+<pre><code>:Invoke sync registers</code></pre>
+<p>Vizardry will prompt you with:</p>
+<pre><code>Result 1/3: ardagnir/united-front
+(Automatically syncs registers between vim instances)
+
+Clone as &quot;syncregisters&quot;? (Yes/Rename/DisplayMore/Next/Previous/Abort)</code></pre>
+<p>Just as easy.</p>
+<h3 id="banish">Banish</h3>
+<p><code>:Banish &amp;lt;keyword&amp;gt;</code></p>
+<p>Banish a plugin, this only forbid pathogen to load it and does not remove the files. You need to restart vim to see the effects.</p>
+<h3 id="unbanish">UnBanish</h3>
+<p><code>:Unbanish &amp;lt;keyword&amp;gt;</code></p>
+<p>Reverse a banish.</p>
+<h3 id="vanish">Vanish</h3>
+<p><code>:Vanish &amp;lt;keyword&amp;gt;</code></p>
+<p>Remove definitively a plugin’s files.</p>
+<h3 id="evolve">Evolve</h3>
+<p><code>:Evolve  [&amp;lt;keyword&amp;gt;]</code></p>
+<p>Upgrade the plugin matching &lt;keyword&gt;. If no &lt;keyword&gt; is given, upgrade all possible plugins.</p>
+<p>The plugins downloaded from github are upgraded by doing:</p>
+<pre><code>git pull origin master</code></pre>
+<h4 id="display-readme-on-evolve"> Display Readme On Evolve</h4>
+<p>Sometimes it can be a good idea to take a quick look at a plugin’s README or git log when updating, to do so, add the following to your vimrc:</p>
+<pre><code>let g:VizardryViewReadmeOnEvolve=1</code></pre>
+<p><code>:Evolve</code> will then ask you to display readme or log each time a plugin is upgraded.</p>
+<h4 id="evolve-from-vim.org">Evolve from vim.org</h4>
+<p>Although the following method works fine, it is recommended to always install plugins by cloning a repository. To install plugin found at vim.org by from github use:</p>
+<pre><code>:Invoke -u vim-scripts &lt;plugin-name&gt;</code></pre>
+<p>Were &lt;plugin-name&gt; is the actual name of the plugin at vim.org</p>
+<p>You can also search a plugin by vim.org id:</p>
+<pre><code>:Invoke -u vim-scripts in:readme script_id=&lt;id&gt;</code></pre>
+<p><code>:Evolve</code> is able to upgrade plugin downloaded from vim.org, to do so, you need to create a <code>.metainfos</code> file at the root of the plugin directory (not yout bundle directory). Such a file is composed of two lines:</p>
+<ol style="list-style-type: decimal">
+<li>the vimscript url (at vim.org)</li>
+<li>The current version number (0 for initialization)</li>
+</ol>
+<p><strong>Note:</strong></p>
+<ul>
+<li><code>atool</code> is required for upgrading scripts from vim.org, see <a href="#requirements">Requirements</a>.</li>
+</ul>
+</body>
+</html>
