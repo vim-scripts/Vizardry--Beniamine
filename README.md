@@ -11,10 +11,37 @@
 
                     A vim plugin manager for lazy people
 
+## Table of contents
+
+1. [Release notes](#release-notes)
+2. [Introduction](#introduction)
+    1. [Why This Fork ?](#why-this-fork)
+    2. [Requirements](#requirements)
+    3. [Installation](#installation)
+    4. [License](#license)
+3. [Submodules](#how-to-use-vizardry-with-submodules)
+4. [Commands](#commands)
+    1. [Scry](#scry)
+        1. [Number of results](#number-of-results)
+        2. [Queries](#queries)
+        3. [Search Options](#search-options)
+    2. [Invoke](#invoke)
+        1. [Display readme on Invoke](#display-readme-on-invoke)
+    3. [Banish](#banish)
+    4. [Unbanish](#unbanish)
+    5. [Vanish](#vanish)
+    6. [Evolve](#evolve)
+        1. [Display readme on evolve](#display-readme-on-evolve)
+        2. [Evolve from vim.org](#evolve-from-vim.org)
+    7. [Vizardry](#vizardry-cmd)
+5. [Spread the work](#spread-the-word)
+
 ## Release notes
 
-Current Version: 1.3.2
+Current Version: 1.4
 
+* v1.4 provides several bug fix and the capability of seeing help files from
+ Invoke and Evolve prompt.
 * v1.3 allow to Invoke directly from Scry, to do so, I had to modify the input
   method (using `:input()`, instead of `:getchar()`), for the user the result
   is that it is now necessary to hit 'enter' after answering a prompt from
@@ -39,7 +66,7 @@ features including:
 + `Vanish` command to actually remove a plugin.
 + `Evolve` command to upgrade one or every plugins see [Evolve](#evolve).
 + Complete submodule handling for people having their vim config in a git repo
-(see [submodules](#how-to-use-vizardry-with-submodules-?)).
+(see [submodules](#how-to-use-vizardry-with-submodules)).
 + Dislay README.md file inside vim while using `:Invoke`.
 + Navigate through search results with `:Invoke`
 + Set the length of `Scry` results list.
@@ -110,7 +137,7 @@ or `:Vanish` if it contains some bad modifications.
 
 ### Scry
 
-`:Scry [&lt;query&gt;]`
+`:Scry [<query>]`
 
 + If no <query> is given, list all invoked and banished plugins.
 + If a <query> is specified (see below), search github for a script matching
@@ -153,7 +180,7 @@ each options. For the sort option, available parameters are `stars`,
 
 ### Invoke
 
-`:Invoke [&lt;query&gt;|N]`
+`:Invoke [<query>|N]`
 
 +   If no arguments is specified, reload your plugins.
 +   If the argument is a number, ask to install the plugin with that
@@ -177,19 +204,12 @@ Vizardry will pop up a prompt saying:
     Result 1/20: tpope/vim-surround
     (surround.vim: quoting/parenthesizing made simple)
 
-    Clone as "surround"? (Yes/Rename/DisplayMore/Next/Previous/Abort)
+    Clone as "surround"? (Yes/Rename/Displayreadme/displayHelp/Next/Previous/Abort)
 
 Press Y and you can immediately start surrounding things.  You can also take a
-look at the README.md directly in vim by hitting 'd', Go to the next or
-previous script with 'n' and 'p' or abort 'a'. It's that easy.
-
-### Display readme on Invoke
-
-To view the readme, an other instance of vim is called, the command line can
-be configured:
-
-    let g:VizardryReadmeReader='view -c "set ft=markdown" -'
-
+look at the README.md directly in vim by hitting `d` or at the help using `h`,
+Go to the next or previous script with `n` and `p` or abort `a`. It's that
+easy.
 
 Even plugins with vague or silly names can be found with Vizardry. Imagine
 you're running multiple instances of vim and need a package to sync registers.
@@ -207,28 +227,44 @@ Vizardry will prompt you with:
 
 Just as easy.
 
+#### Display readme on Invoke
+
+To view the readme, an other instance of vim is called, the command line can
+be configured:
+
+    let g:VizardryReadmeReader='view -c "set ft=markdown" -'
+
+The help file reader is also configurable, there is the default:
+
+    let g:VizardryHelpReader='view -c "set ft=help" -'
+
+Finally if readme or help is missing, Vizardry will try to search for the
+other one, if you dont like this behavior, you can prevent it:
+
+    let g:VizardryReadmeHelpFallback = 0
+
 ### Banish
 
-`:Banish &lt;keyword&gt;`
+`:Banish <keyword>`
 
 Banish a plugin, this only forbid pathogen to load it and does not remove
 the files. You need to restart vim to see the effects.
 
 ### UnBanish
 
-`:Unbanish &lt;keyword&gt;`
+`:Unbanish <keyword>`
 
 Reverse a banish.
 
 ### Vanish
 
-`:Vanish &lt;keyword&gt;`
+`:Vanish <keyword>`
 
 Remove definitively a plugin's files.
 
 ### Evolve
 
-`:Evolve  [&lt;keyword&gt;]`
+`:Evolve  [<keyword>]`
 
 Upgrade the plugin matching &lt;keyword&gt;. If no &lt;keyword&gt; is given, upgrade
 all possible plugins.
@@ -239,12 +275,12 @@ The plugins downloaded from github are upgraded by doing:
 
 #### Display Readme On Evolve
 
-Sometimes it can be a good idea to take a quick look at a plugin's README
-or git log when updating, to do so, add the following to your vimrc:
+Sometimes it can be a good idea to take a quick look at a plugin's README,
+help or git log when updating, to do so, add the following to your vimrc:
 
     let g:VizardryViewReadmeOnEvolve=1
 
-`:Evolve` will then ask you to display readme or log each time a plugin is
+`:Evolve` will then ask you to display readme help or log each time a plugin is
 upgraded.
 
 #### Evolve from vim.org
@@ -272,3 +308,20 @@ you need to create a `.metainfos` file at the root of the plugin directory
 
 +   `atool` is required for upgrading scripts from vim.org, see
     [Requirements](#requirements).
+
+### <a name="vizardry-cmd">Vizardry</a>
+
+`:Vizardry`
+
+Show a basic usage and Vizardry version.
+
+# Spread the word
+
+If you like Vizardry and you are also a vimscript developper, an easy way to
+spread the word is to add a Vizardry install section to your plugins README
+for instance:
+
+If you have installed [Vizardry](https://github.com/dbeniamine/vizardry) just
+run the following from vim:
+
+    :Invoke -u <your_username> <your_plugin_name>

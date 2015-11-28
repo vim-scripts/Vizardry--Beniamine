@@ -34,6 +34,16 @@ if !exists("g:VizardryReadmeReader")
   let g:VizardryReadmeReader='view -c "set ft=markdown" -'
 endif
 
+" How to read help files
+if !exists("g:VizardryHelpReader")
+  let g:VizardryHelpReader='view -c "set ft=help" -'
+endif
+
+" Allow fallback to help/readme
+if !exists("g:VizardryReadmeHelpFallback")
+  let g:VizardryReadmeHelpFallback=1
+endif
+
 " Git api search options see
 " https://developer.github.com/v3/search/#search-repositories
 if !exists("g:VizardrySearchOptions")
@@ -60,8 +70,8 @@ function! vizardry#remote#grabRepo(site, name)
     let l:precmd=':!'
     let l:path=g:vizardry#bundleDir
   endif
-  execute l:precmd.' git '.g:VizardryGitMethod.' https://github.com/'.
-        \ a:site.' '.l:path.'/'.a:name.l:commit
+  execute l:precmd." git ".g:VizardryGitMethod." 'https://github.com/".
+        \ a:site."' ".l:path."/".a:name.l:commit
 endfunction
 
 " Test existing repo {{{2
@@ -79,19 +89,42 @@ function! vizardry#remote#testRepo(repository)
   return ""
 endfunction
 
+" Use the commmand reader to read the content at url
+function! vizardry#remote#readurl(reader,url)
+  execute ":!curl -silent '".a:url."'".' | sed "1,/^$/ d" | '.a:reader
+endfunction
+
+" Display Help for site {{{2
+function! vizardry#remote#DisplayHelp(site,noRec)
+  call vizardry#echo("Looking for help file url",'s')
+  let name=substitute(a:site,'.*/\([^\.]*\).*','\1','')
+  let url='https://raw.githubusercontent.com/'.a:site.
+        \'/master/doc/'.name.'.txt'
+  let fourofour=system("curl -silent -I '".readmeurl."' | grep 404")
+  if fourofour != ""
+    call vizardry#echo("No help file found", "e")
+    if a:fallback == 1
+      call vizardry#remote#DisplayReadme(a:site,0)
+    endif
+  endif
+  call vizardry#remote#readurl(g:VizardryHelpReader,url)
+endfunction
+
 " Display Readme {{{2
-function! vizardry#remote#DisplayReadme(site)
+function! vizardry#remote#DisplayReadme(site,fallback)
   call vizardry#echo("Looking for README url",'s')
-  let readmeurl=system('curl -silent https://api.github.com/repos/'.
-        \ a:site.'/readme | grep download_url')
+  let readmeurl=system("curl -silent 'https://api.github.com/repos/".
+        \ a:site."/readme' | grep download_url")
   let readmeurl=substitute(readmeurl,
         \ '\s*"download_url"[^"]*"\(.*\)",.*','\1','')
   call vizardry#echo("Retrieving README",'s')
   if readmeurl == ""
-    call vizardry#echo("No readme found",'e')
+    call vizardry#echo("No readme found",'w')
+    if a:fallback == 1
+      call vizardry#remote#DisplayHelp(a:site,0)
+    endif
   else
-    execute ':!curl -silent '.readmeurl.' | sed "1,/^$/ d" | '.
-          \ g:VizardryReadmeReader
+    call vizardry#remote#readurl(g:VizardryReadmeReader, readmeurl)
   endif
 endfunction
 
@@ -108,8 +141,8 @@ function! vizardry#remote#handleInvokation(site, description, inputNice, index)
     call vizardry#echo("Result ".a:index."/".len.
           \ ": ".a:site."\n(".a:description.")\n\n",'')
     let response = vizardry#doPrompt("Clone as \"".inputNice.
-          \ "\"? (Yes/Rename/DisplayMore/Next/Previous/Abort)",
-          \ ['y','r','d','n','p','a'])
+          \ "\"? (Yes/Rename/Displayreadme/displayHelp/Next/Previous/Abort)",
+          \ ['y','r','d','h','n','p','a'])
     if response ==? 'y'
       call vizardry#remote#grabRepo(a:site, inputNice)
       call vizardry#ReloadScripts()
@@ -144,7 +177,9 @@ function! vizardry#remote#handleInvokation(site, description, inputNice, index)
       let ret=a:index+1
       let valid = 1
     elseif response ==? 'd'
-      call vizardry#remote#DisplayReadme(a:site)
+      call vizardry#remote#DisplayReadme(a:site,g:VizardryReadmeHelpFallback)
+    elseif response ==? 'h'
+      call vizardry#remote#DisplayHelp(a:site,g:VizardryReadmeHelpFallback)
     elseif response ==? 'a'
       let valid=1
     elseif response ==? 'p'
@@ -170,17 +205,19 @@ function! vizardry#remote#InitLists(input)
       let query.='+user:'.user
     endif
     call vizardry#echo("Searching for ".query."...",'s')
-    let query.='+language:viml+'.g:VizardrySearchOptions
+    let query.='+vim+'.g:VizardrySearchOptions
     call vizardry#echo("(actual query: '".query."')",'')
     " Do query
     let curlResults = system(
-          \ 'curl -silent https://api.github.com/search/repositories?q='.query)
+          \"curl -silent 'https://api.github.com/search/repositories?q=".query."'")
     " Prepare list (sites and descriptions)
     let curlResults = substitute(curlResults, 'null,','"",','g')
+    call  vizardry#echo(curlResults,'D' )
     let site = system('grep "full_name" | head -n '.g:VizardryNbScryResults,
           \ curlResults)
     let site = substitute(site, '\s*"full_name"[^"]*"\([^"]*\)"[^\n]*','\1','g')
     let g:vizardry#siteList = split(site, '\n')
+    call  vizardry#echo(g:vizardry#siteList,'D' )
 
     let description = system('grep "description" | head -n '.
           \ g:VizardryNbScryResults, curlResults)
@@ -188,6 +225,7 @@ function! vizardry#remote#InitLists(input)
           \ '\s*"description"[^"]*"\([^"\\]*\(\\.[^"\\]*\)*\)"[^\n]*','\1','g')
     let description = substitute(description, '\\"', '"', 'g')
     let g:vizardry#descriptionList = split(description, '\n')
+    call  vizardry#echo(g:vizardry#descriptionList,'D' )
     let ret=len(g:vizardry#siteList)
     if ret == 0
       call vizardry#echo("No results found for query '".a:input."'",'w')
@@ -206,8 +244,8 @@ function! vizardry#remote#Invoke(input)
     return
   endif
 
-  if a:input =~ "[0-9][0-9]*"
-  let inputNumber = str2nr(a:input)
+  if a:input =~ '^\d\+$'
+    let inputNumber = str2nr(a:input)
     " Input is a number search from previous search results
     if exists("g:vizardry#siteList") && inputNumber < len(g:vizardry#siteList)
           \|| a:input=="0"
@@ -285,17 +323,21 @@ function s:GitEvolve(path)
     let continue=0
     let name=substitute(substitute(a:path,'.*/','',''),'\.git','','')
     while continue==0
-    let response=vizardry#doPrompt(name.' Evolved, show Readme, Log or Continue ? (r,l,c)',
-          \['r','l','c'])
-      if response =='r'
+    let response=vizardry#doPrompt(name.' Evolved, show Readme, Log or Continue ? (r,l,c,h)',
+          \['r','l','c', 'h'])
+      if response ==? 'r' || response ==? 'h'
         let l:site=system('cd '.a:path.' && git remote -v')
         let l:site=substitute(site,'origin\s*\(\S*\).*','\1','')
         let l:site=substitute(site,'.*github\.com.\(.*\)','\1','')
         let l:site=substitute(site,'\(.*\).git','\1','')
-        call vizardry#remote#DisplayReadme(site)
-      elseif response == 'l'
+        if response ==? 'r'
+          call vizardry#remote#DisplayReadme(site,g:VizardryReadmeHelpFallback)
+        else
+          call vizardry#remote#DisplayHelp(site,g:VizardryReadmeHelpFallback)
+        endif
+      elseif response ==? 'l'
         execute ':!cd '.a:path .' && git log'
-      elseif response == 'c'
+      elseif response ==? 'c'
         let continue=1
       endif
     endwhile

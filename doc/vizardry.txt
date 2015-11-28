@@ -16,35 +16,42 @@ Table of Contents                                         *Vizardry-contents* ~
     1. Release notes...............................|Vizardry-releaseNotes|
     2. Introduction................................|Vizardry-introduction|
         2.1 Why This Fork..........................|Vizardry-fork|
-        2.2. Requirements..........................|Vizardry-requirements|
-        2.3. Installation..........................|Vizardry-installation|
-        2.4. License...............................|Vizardry-License|
-    4. Submodules..................................|Vizardry-submodule|
-    5. Commands....................................|Vizardry-commands|
-        5.1 Scry...................................|:Scry|
-            5.1.1 Nb results.......................|Vizardry-nbScryResults|
-            5.1.2 Query............................|Vizardry-query|
-            5.1.3 Search Options...................|Vizardry-searchOptions|
-            5.1.4 Sort results.....................|Vizardry-sortScryResults|
-        5.2 Invoke.................................|:Invoke|
-            5.2.1 Readme Reader....................|Vizardry-readmeReader|
-        5.3 Banish.................................|:Banish|
-        5.4 Unbanish...............................|:Unbanish|
-        5.5 Vanish.................................|:Vanish|
-        5.6 Evolve.................................|:Evolve|
-            5.6.1 View readme on evolve............|Vizardry-viewReadmeOnEvolve|
-            5.6.2 Evolve from vim.org..............|Vizardry-evolveVim.org|
+        2.2 Requirements...........................|Vizardry-requirements|
+        2.3 Installation...........................|Vizardry-installation|
+        2.4 License................................|Vizardry-License|
+    3. Submodules..................................|Vizardry-submodule|
+    4. Commands....................................|Vizardry-commands|
+        4.1 Scry...................................|:Scry|
+        4   5.1.1 Nb results.......................|Vizardry-nbScryResults|
+        4   5.1.2 Query............................|Vizardry-query|
+        4   5.1.3 Search Options...................|Vizardry-searchOptions|
+        4   5.1.4 Sort results.....................|Vizardry-sortScryResults|
+        4.2 Invoke.................................|:Invoke|
+        4   5.2.1 Readme Reader....................|Vizardry-readmeReader|
+        4   5.2.2 Help Reader......................|Vizardry-helpReader|
+        4   5.2.3 Readme Help fallback............|Vizardry-ReadmeHelpFallback|
+        4.3 Banish.................................|:Banish|
+        4.4 Unbanish...............................|:Unbanish|
+        4.5 Vanish.................................|:Vanish|
+        4.6 Evolve.................................|:Evolve|
+        4   5.6.1 View readme on evolve............|Vizardry-viewReadmeOnEvolve|
+        4   5.6.2 Evolve from vim.org..............|Vizardry-evolveVim.org|
+        4.7 Scry...................................|:Vizardry|
+    5. Spread the word ............................|Vizardry-spread|
 
 ===============================================================================
 Release notes                                         *Vizardry-releaseNotes* ~
 
-Current Version: 1.3.2
+Current Version: 1.4
 
+* v1.4 provides several bug fix and the capability of seeing help files from
+ Invoke and Evolve prompt. It also add the command `:Vizardry` to show version
+ and basic usage.
 * v1.3 allow to Invoke directly from Scry, to do so, I had to modify the input
   method (using `:input()`, instead of `:getchar()`), for the user the result
   is that it is now necessary to hit 'enter' after answering a prompt from
   Vizardry
-* Since v1.1, `VizardrySortScryResults` is replaced by `VizardrySearchOptions`
+* Since v1.1, `VizardrySortScryResults` is replaced by `Vizardry-searchOptions`
 
 ===============================================================================
 Intoduction                                           *Vizardry-introduction* ~
@@ -179,7 +186,7 @@ Vizardry Commands                                         *Vizardry-commands* ~
 
                                                      *Vizardry-sortScryResults*
 
-    Since v1.1, `VizardrySortScryResults` is replaced by |VizardrySearchOptions|
+    Since v1.1, `VizardrySortScryResults` is replaced by |Vizardry-searchOptions|
 
 
 :Invoke [<query>|N]                                                   *:Invoke*
@@ -206,18 +213,12 @@ Vizardry Commands                                         *Vizardry-commands* ~
         Result 1/20 tpope/vim-surround
         (surround.vim: quoting/parenthesizing made simple)
 
-        Clone as "surround"? (Yes/Rename/DisplayMore/Next/Previous/Abort)
+        Clone as "surround"? (Yes/Rename/Displayreadme/displayHelp/Next/Previous/Abort)
 <
     Press Y and you can immediately start surrounding things.  You can also
-    take a look at the README.md directly in vim by hitting 'd', Go to the
-    next or previous script with 'n' and 'p' or abort 'a'. It's that easy.
-
-                                                        *Vizardry-readmeReader*
-    To view the readme, an other instance of vim is called, the command line
-    can be configured:
->
-        let g:VizardryReadmeReader='view -c "set ft=markdown" -'
-<
+    take a look at the README.md directly in vim by hitting `d` or at the help
+    using `h`, Go to the next or previous script with `n` and `p` or abort
+    `a`. It's that easy.
 
     Even plugins with vague or silly names can be found with Vizardry. Imagine
     you're running multiple instances of vim and need a package to sync
@@ -233,6 +234,26 @@ Vizardry Commands                                         *Vizardry-commands* ~
         Clone as "syncregisters"? (Yes/Rename/DisplayMore/Next/Previous/Abort)
 <
     Just as easy.
+
+                                                        *Vizardry-readmeReader*
+    To view the readme, an other instance of vim is called, the command line
+    can be configured:
+>
+        let g:VizardryReadmeReader='view -c "set ft=markdown" -'
+<
+                                                          *Vizardry-helpReader*
+    The help file reader is also configurable, there is the default:
+
+>
+        let g:VizardryHelpReader='view -c "set ft=help" -'
+
+<
+                                                  *Vizardry-ReadmeHelpFallback*
+    Finally if readme or help is missing, Vizardry will try to search for the
+    other one, if you dont like this behavior, you can prevent it:
+>
+        let g:VizardryReadmeHelpFallback = 0
+<
 
 :Banish <keyword>                                                     *:Banish*
 
@@ -257,14 +278,14 @@ The plugins downloaded from github are upgraded by doing:
         git pull origin master
 <
                                                   *Vizardry-viewReadmeOnEvolve*
-    Sometimes it can be a good idea to take a quick look at a plugin's README
-    or git log when updating, to do so, add the following to your vimrc:
+    Sometimes it can be a good idea to take a quick look at a plugin's README,
+    help or git log when updating, to do so, add the following to your vimrc:
 >
         let g:VizardryViewReadmeOnEvolve=1
 <
 
-    `:Evolve` will then ask you to display readme or log each time a plugin is
-    upgraded.
+    `:Evolve` will then ask you to display readme, help or log each time a
+    plugin is upgraded.
 
                                                        *Vizardry-evolveVim.org*
     Although the following method works fine, it is recommended to always install
@@ -289,3 +310,23 @@ The plugins downloaded from github are upgraded by doing:
 
     Note: `atool` is required for upgrading scripts from vim.org, (see
     |Vizardry-Requirements|).
+
+
+                                                                    *:Vizardry*
+:Vizardry
+
+    Show a basic usage and Vizardry version.
+
+
+===============================================================================
+Spread the word                                             *Vizardry-spread* ~
+
+If you like Vizardry and you are also a vimscript developper, an easy way to
+spread the word is to add a Vizardry install section to your plugins README
+for instance:
+
+If you have installed [Vizardry](https://github.com/dbeniamine/vizardry) just
+run the following from vim:
+>
+    :Invoke -u <your_username> <your_plugin_name>
+<
